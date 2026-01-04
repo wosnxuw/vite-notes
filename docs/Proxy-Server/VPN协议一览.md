@@ -26,7 +26,7 @@ Hysteria：利用 UDP 的一种协议
 
 目前的发展现状如下：
 
-<img src="/assets/image-20251120145342218.png" alt="image-20251120145342218" style="zoom: 33%;" />
+![image-20251120145342218](assets/image-20251120145342218.png)
 
 传输安全，定义了在 TCP 层之上的传输层安全协议
 
