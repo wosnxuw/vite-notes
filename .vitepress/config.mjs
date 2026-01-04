@@ -4,7 +4,7 @@ import { generateSidebar } from 'vitepress-sidebar';
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   srcDir: "docs",
-  base: "notes",
+  base: "/notes/",
   title: "Notes",
   description: "笔记",
   themeConfig: {
