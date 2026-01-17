@@ -10,7 +10,7 @@
 
 同时，任何一个线程可以再次 fork，比如 2 线程，它可以脱离于主线程，自己再造两个线程，它成为这个线程组的主线程。（即主线程似乎并不只是一个）
 
-![image-20250206102503896](assets/image-20250206102503896.png)
+![thread-fork](assets/thread-fork.png)
 
 在 pragma omp parallel 后面的一个 Block 中，所有的线程都会去执行块里面的语句
 
@@ -40,7 +40,7 @@ int main(void) {
 
 OMP 直至让编译器把这块代码翻译为对应 OS 上的多线程 API 语句
 
-![image-20250206105059314](assets/image-20250206105059314.png)
+![omp-code](assets/omp-code.png)
 
 SPMD 思想：多个线程，利用自己的 id 和线程总数，来调整其所作的事情
 

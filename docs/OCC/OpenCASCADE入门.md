@@ -25,7 +25,7 @@ set VCVARS=C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary
 
 其实它自带了一个 tbb 文件夹，链接到这个也行。
 
-![image-20240729162346189](assets/image-20240729162346189-1722241426491-1.png)
+![occ-depend](assets/occ-depend.png)
 
 这幅图描述了你到底需要什么第三方库。
 
@@ -41,7 +41,7 @@ https://dev.opencascade.org/doc/refman/html/annotated.html
 
 这个【参考手册】，就是类的实现
 
-![image-20240729160858289](assets/image-20240729160858289.png)
+![occ-doc](assets/occ-doc.png)
 
 这个是 OCC 的总体层次模型，和 https://dev.opencascade.org/doc/occt-7.6.0/refman/html/index.html 对应，每个模块 Module 中含多个 ToolKit 工具包，注意其中的 Modeling Data 块，其占包含一个 Toolkit TKBRep，内部又包含很多 Package，其中 Package TopoDS 包含了 TopoDS_Shape。在上面状态栏里可以看到层次。
 
@@ -49,7 +49,7 @@ https://dev.opencascade.org/doc/refman/html/annotated.html
 
 之所以谈这个 Toolkit，是因为库是按照 Toolkit 来编译的，比如 TKBRep.lib，当然你可以不管，直接无脑全加进来。就是在 VS 中，最开始编译的时候，是按照这个顺序来的。  
 
-![image-20240729161129054](assets/image-20240729161129054.png)
+![occ-framework](assets/occ-framework.png)
 
 ### Handle
 
