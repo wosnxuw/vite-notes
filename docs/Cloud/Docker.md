@@ -1,4 +1,4 @@
-* # Docker
+## Docker
 
 ### WSL
 
@@ -10,7 +10,9 @@ Docker Desktop（这个 exe 应用程序）使用 WSL2 创建一个名为 `docke
 C:\Users\liuyanming\AppData\Local\Docker\wsl\disk\docker_data.vhdx
 ```
 
-备注：wsl2 里是可以构造好几个虚拟机的，并且它们的 vhdx 应该可以自己指定位置，所以这里 先 docker 后 wsl，应该只是 Docker Desktop 的写法问题
+备注：wsl2 里是可以构造好几个虚拟机的，并且它们的 vhdx 应该可以自己指定位置，所以这里 先 docker 后 wsl，应该只是 Docker Desktop 的自己愿意这样写。（因为我想起安装 Docker 时，它建议是用 wsl，所以可能不一定要基于 wsl）
+
+并且这个位置应该也是可以换掉的，我看在 GUI 界面的 Settings->Resources 里可以换
 
 ### 镜像位置及复用
 
@@ -36,7 +38,7 @@ Dockerfile 的每一条指令，代表产生了一个新的"层"，每一层有�
 
 Volumes 设计为持久存储可读写，但是镜像 Images 是只读的
 
-卷的真正位置似乎在
+卷的真正位置似乎在（Docker version 27.5.1, build 9f9e405）
 
 ```
 \\wsl.localhost\docker-desktop\mnt\docker-desktop-disk\data\docker\volumes
@@ -44,11 +46,33 @@ Volumes 设计为持久存储可读写，但是镜像 Images 是只读的
 
 这个位置，只有在 docker 启动后，才能看到。一旦 docker 结束，该位置会变成一个 json
 
-声明周期：
+当然你在 GUI 界面的 Volumes 里可以直接看到所有卷
+
+生命周期：
 
 1、卷 和 镜像 是独立的
 
 2、一个卷可以被多个容器同时使用
+
+### 绑定挂载
+
+Docker 存储数据的两种主要“流派”：具名卷 (Named Volumes) 和 绑定挂载 (Bind Mounts)
+
+n8n 是前者，Milvus 是后者
+
+放在 yml 旁边的好处是所见即所得，迁移简单
+
+追求性能用 Volumes
+
+### Compose
+
+（compose：组成）
+
+很多项目，都是通过提供 docker-compose.yml 来配置多个容器（前后端分离），在 UI 里，就是 Containers 下一个可以展开的东西
+
+你如果不知道你那个 Container 是从哪个 yml 来的，你可以点击它的名字，然后在这里看到
+
+![yml-location](assets/yml-location.png)
 
 ### 从命令行运行容器
 
@@ -57,14 +81,31 @@ docker compose up -d
 docker compose -p "myproject" up -d
 ```
 
-- `docker compose up`：根据当前目录下的 `docker-compose.yml` 文件（或指定文件）启动所有定义的服务。
-- `-d` 参数：表示以“**后台模式**”（detached）运行容器，即容器启动后不会占用当前终端。
-- `-p` 项目名
-- `-f` yml 文件名
+`docker compose up`：根据当前目录下的 `docker-compose.yml` 文件（或指定文件）启动所有定义的服务。
+
+`d` 表示以“后台模式”（detached）运行容器，即容器启动后不会占用当前终端
+
+`p` 项目准备叫什么，如果不给，似乎是 yml 所在的文件夹的名字
+
+`f` yml 文件名
 
 docker compose 和 docker-compose 是同一个效果
 
-（compose：组成）
+### 是死是活？
+
+`docker run -it --rm --name n8n -p 5678:5678 -v n8n_data:/home/node/.n8n docker.n8n.io/n8nio/n8n`
+
+这个 n8n 的命令，因为有 rm 所以结束后就似了
+
+比如 dify 的命令，它是让你下载 yml，然后和`compose up -d`
+
+我的疑惑：为什么删了 git 仓库，容器还在跑，下次重启电脑后，应该找不到 yml 了，按理说应该起不来了
+
+AI：yml 是建筑图纸，而容器是根据图纸盖出来的大楼，楼盖好以后，删了图纸楼并不会塌（包括重启）
+
+你最开始 `compose up -d`时，属于一个 yml 的容器会有同一个 Labels，所以 UI 上能给你放在一起
+
+### yml
 
 ### 服务是什么
 
