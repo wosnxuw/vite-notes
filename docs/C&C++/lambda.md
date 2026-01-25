@@ -14,7 +14,7 @@
 
 函数指针允许你将函数传递给另一个函数，比如 qsort 排序
 
-在 C++中，如果你不想思考函数指针的类型，你可以
+在 C++ 中，如果你不想思考函数指针的类型，你可以
 ```C++
 auto func_ptr =  say_hello;
 //是否写&都可以，有一个隐式转换
@@ -32,10 +32,29 @@ my_type = add;
 
 注意：返回值后置
 
+C++：必须显示说明捕获什么东西
 ```C++
-[=] () mutable exception -> int {
-    
-}
+auto func = [](int x, int y) -> int {
+    return x + y;
+};
+```
+
+Rust：不需要指定捕获什么东西，会自动推断
+
+```rust
+let add = |x: i32, y: i32| -> i32 {
+    x + y
+};
+let base = 10;
+let add_base = |x| x + base;
+println!("{}", add_base(5));  // 15
+```
+
+Python：必须声明为 lambda，隐式捕获外部变量，只支持一行内写完，不支持多语句
+
+```python
+add = lambda x, y: x + y
+sorted_pairs = sorted(pairs, key=lambda x: x[1])  # 按第二个元素排序
 ```
 
 中括号（捕获方式）表示 lambda 的开始，不能省略
@@ -89,39 +108,41 @@ int main{
 
 **带捕获的 lambda** 本质上是一个“闭包对象”（closure object），它不仅包含可调用体（相当于函数体），还携带了它所捕获的外部变量，存储在这个对象的内部
 
-**匿名：**每个 lambda 在编译时都会“生成”一个独立的**类**类型。是编译器自动生成的、不可直接命名的闭包类型。
+**匿名** 每个 lambda 在编译时都会“生成”一个独立的**类**类型。是编译器自动生成的、不可直接命名的闭包类型。包含一个或多个“私有”成员变量，用于存放捕获的外部变量（如果有捕获）
 
-个或多个“私有”成员变量，用于存放捕获的外部变量（如果有捕获）
-
-**不可命名：**无法直接给出 lambda 的类型（你无法直接写出它的名字），只能通过`auto`、`std::function<>` 或者 `decltype` 的方式来“获取”到这个类型的实例或类型信息。非捕获时允许转换
+**不可命名** 无法直接给出 lambda 的类型（你无法直接写出它的名字），只能通过`auto`、`std::function<>` 或者 `decltype` 的方式来“获取”到这个类型的实例或类型信息。非捕获时允许转换
 
 ### 让 B 类完全不清楚 A 的情况下，通知 A
 
 ```cpp
-class A {
+class A { // Command
 public:
     B b;
-    void call_B() {
-        b.tell_A();
+    void finish() {
+        b.delete_dialog();
     }
-    void is_ok();
+    void delete_resource() {
+        ;
+    }
 };
 
-class B {
+class B { // Dialog
 public:
-    void tell_A() {
-        return;
+    void delete_dialog() {
+        ;
     }
 };
 ```
 
-我要在 B 能够通过 tell_ok，谁调用了 tell_ok，就告诉那个类的 get_ok。但是 B 里面不能出现任何有关 A 的代码，包括 include 或者是声明。（b 和 a 的代码是分开的）A 可以创造 B
+设想如下场景，A 类为命令类，B 类为对话框类。A 类被上级 finish 时，它要先通知 B 对话框关掉，然后等 B 成功关掉，再把资源删掉。
+
+但是 B 里面不能出现任何有关 A 的代码，包括 include 或者是声明。（B 和 A 的代码是分开的）A 可以创造 B
 
 方式 1
 
 类函数指针（通过 lambda 或者 std::function）实现回调
 
-B 在被构造后，拿到一个回调函数，只要自己的 tell_A 被调用了，那么就去调用这个回调就好了。A 负责在拿到 B 的时候，给它设置回调函数。
+B 在被构造后，拿到一个回调函数，只要自己的 delete_dialog 被调用了，那么就去调用这个回调就好了。A 负责在拿到 B 的时候，给它设置回调函数。
 
 例子：
 
@@ -133,25 +154,11 @@ A 构造 B 时，把“想做的事情”封装成一个 lambda 送给 B
 
 通过 抽象接口 
 
-定义一个额外的抽象接口 ICallback，然后 A 实现它，B 存 ICallback，A 构造 B 的时候，把自己当作子类传过去，B 调父类的接口
+定义一个额外的抽象接口 ICallback，然后 A 实现它，B 存 ICallback，A 构造 B 的时候，把自己当作 ICallback 的子类传过去，B 调父类的接口
 
 方式 3
 
-通过 信号槽、消息传递等机制
-
-RoLineLaserSearchPath 采取的方式是这样
-
-首先 CRo 继承于 IRo，而 IRo 是 idl 里的，IRo 最后会在 apContextCAXA_i.h 里
-
-这样，Dlg 可以识别到 IRo，然后调用 IRo 的方法
-
-这种就是类似于方式 2
-
-CDlg 不需要直接 include CRo 的文件，而是用一个公共的接口，比如 IRo（其实就是 Callback），去调。
-
-而且调用的时候是用的 CComPtr。
-
-m_dlgSearchDlg->SetCommand(this); 把自己传过去
+通过 信号槽、消息传递等复杂机制
 
 ### 在 C 语言中模仿闭包
 
