@@ -105,8 +105,6 @@ AI：yml 是建筑图纸，而容器是根据图纸盖出来的大楼，楼盖�
 
 你最开始 `compose up -d`时，属于一个 yml 的容器会有同一个 Labels，所以 UI 上能给你放在一起
 
-### yml
-
 ### 服务是什么
 
 Docker Compose 和 Kubernetes 都以声明式的 YAML 文件来描述“我要运行哪些容器，以及它们之间如何协作”，但是 k8s 功能更多，并且可以跨机器
@@ -119,11 +117,21 @@ docker-compose.yml 里面可以配置多个容器，统一部署
 
 服务是对容器组（或容器集群）的**声明式描述**：你在服务里告诉编排系统（Docker Swarm、Kubernetes、Compose 等）想要运行多少个副本（replicas）、用哪个镜像（image）、要挂载哪些网络或存储卷、采用怎样的更新策略（rolling update）
 
+### 大致原理
+
+docker 是由一个有 root 权限的 dockerd 守护进程管理
+
+docker-cli 处理命令行的命令，dockerd 调用容器运行时 containerd，它再通过 runc 与操作系统交互
+
+人们认为这个东西 root 很坏，podman 的话，是直接用 runc，更安全
+
+它们的命令行是一样的
+
 ```yaml
 version: '3.5' # 这个是 docker 的版本
 
 services: # 要运行的服务
-  etcd: # 第一个服务的名字
+  etcd: # 开源的、分布式的、一致的键值存储系统，主要用于分布式系统的配置管理、服务发现和协调
     restart: "no" # 开机自启
     container_name: milvus-etcd 
     image: quay.io/coreos/etcd:v3.5.5
