@@ -36,6 +36,13 @@ uv 会自动将依赖写入 pyproject.toml
 
 注意，uv add 是必须在工程里运行，否则会找不到 pyproject.toml
 
+### 激活
+
+```shell
+.venv\Scripts\activate
+```
+有时候 IDE 不会自动激活，注意 Windows 上使用反斜杠
+
 ### 全局工具
 
 全局安装工具，相当于安装在 uv 的一个根目录里（类似 conda，似乎它也有一个类似 base 的基本目录）
