@@ -67,11 +67,55 @@ print(result)  # 应输出 "apple, banana, cherry"
 
 yield 的直译是 产生 产出
 
+我们先回忆 C 语言的函数内（或函数外，反正用于函数进行状态保存） static，它产生一个生命周期和程序一致的，但是只能在函数内用的静态变量。一般用于计数，函数调一次，加 1
+
+思考：从计算理论的角度，生成器（yield）和类（或其他状态保存方式）在表达能力上是等价的，因为都可以通过状态机来模拟。对于需要保存复杂状态（多个局部变量、嵌套循环等）的函数，使用 yield 可以避免手动将这些状态提取为类成员变量，从而保持代码的清晰
+
 Python 中的 yield 允许函数在每次调用时返回一个值并暂停执行，下次调用时从暂停处继续
+
+要点：
+
+1、yield 相当于 return，从此处就返回了
+
+2、yield 第二次进入时，相当于下一次的入口点
+
+```python
+def generator():
+    count = 0
+    while True:
+        count += 1
+        yield count  # 暂停并返回
+```
 
 不使用 yield 时，我们通常需要一次性计算所有结果并存储在列表（或其他容器）中，这在数据量大时可能效率低下
 
-实现上，应该是有一个类似状态机的类。将函数转换为**隐式状态机**
+实现上，应该是有一个类似状态机的类。将函数转换为**隐式状态机**。保存完整的函数执行上下文，需要时才产生值。
 
 - 每次 `yield` 是一个状态节点
 - 调用 `next()` 触发状态迁移
+
+实际案例：读取超大文件
+
+```python
+# 不使用 yield - 一次性读入整个文件
+def process_file_all(filename):
+    with open(filename, 'r') as f:
+        lines = f.readlines()
+    
+    results = []
+    for line in lines:
+        results.append(process_line(line))
+    return results
+
+# 使用 yield - 逐行读取
+def process_file_generator(filename):
+    with open(filename, 'r') as f:
+        for line in f:  # 一次只读一行到内存
+            yield process_line(line)
+
+# 使用示例
+for processed_line in process_file_generator("huge_file.txt"):
+    # 处理每个结果，内存中始终只有一行数据
+    if some_condition(processed_line):
+        break  # 可以提前终止，不会浪费计算资源
+```
