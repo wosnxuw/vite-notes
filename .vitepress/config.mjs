@@ -17,7 +17,7 @@ export default defineConfig({
     sidebar: generateSidebar({
       /* 这里的选项可以自定义你的需求 */
       documentRootPath: 'docs', // 文档根目录
-      collapsed: false,          // 是否默认折叠
+      collapsed: true,          // 是否默认折叠
       capitalizeFirst: true,     // 首字母大写
       useTitleFromFileHeading: false, // 是否使用文章内的第一个 H1 作为标题
     }),
