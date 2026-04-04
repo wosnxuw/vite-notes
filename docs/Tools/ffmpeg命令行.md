@@ -1,5 +1,13 @@
 # FFmpeg命令行
 
+音视频基础知识（数字媒体）：
+
+编码格式（Codec）、文件封装格式（Container）以及传输协议
+
+封装格式：将视频轨道、多个音轨（比如中英双语）、字幕轨道和元数据（封面、标题）打包成一个文件，如 mp4 mkv
+
+编码格式：内容物的格编码式，音频为 mp3 dts ac3（杜比），视频为 H.264 (AVC) H.265 (HEVC) av1
+
 ```
 usage: ffmpeg [options] [[infile options] -i infile]... {[outfile options] outfile}...
 
