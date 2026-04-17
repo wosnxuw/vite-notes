@@ -13,7 +13,9 @@ export default defineConfig({
     //  { text: 'Home', link: '/' },
     //  { text: 'Examples', link: '/markdown-examples' }
     //],
-
+    search: {
+      provider: 'local'
+    },
     sidebar: generateSidebar({
       /* 这里的选项可以自定义你的需求 */
       documentRootPath: 'docs', // 文档根目录
