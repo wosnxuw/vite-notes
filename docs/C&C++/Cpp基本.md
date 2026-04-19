@@ -12,7 +12,7 @@ auto 会创建拷贝，如果对象较小，不需要修改则使用
 vector<int> vec;
 for (auto value : vec)
 {
-    value++; //对 vec 无影响
+    value++; //对原始 vec 无影响
 }
 ```
 auto& 会创建指向原始对象的引用，需要修改或者是复杂就用
@@ -20,12 +20,12 @@ auto& 会创建指向原始对象的引用，需要修改或者是复杂就用
 vector<int> vec;
 for (auto& valut : vec)
 {
-    value++; //有影响
+    value++; //对原始 vec 有影响
 }
 ```
 在这里，这是一个 C++11 的基于范围的 for 循环，可以直接引用容器内的元素
 
-因此 value 的类型是：int 或者 int&。而不是迭代器
+因此 value 的类型是：int 或者 int&，而不是迭代器
 
 在这里，auto 和 auto&的区别只是
 
@@ -69,17 +69,108 @@ std 命名空间下的所有代码被称为标准库
 
 一个函数声明为**虚**函数，表示开发者，允许你写的子类，重写这个方法，如果不是**虚**的，表示不建议重写
 
-### 头文件应当自包含
+### 头文件应当自包含（不是循环依赖）
 
-可以肯定的一点是，#include 确实是复制
+可以肯定的一点是，#include 确实是复制文本
 
-一个头文件，不应该不包含 vector 而使用 vector
+但是一个良好的行为是：一个头文件，不应该不包含 vector 而使用 vector
 
 而是在引入它的所有 cpp 里，比该头文件更早的引入 vector
 
-这样做可以编过，并且没有 intellisense 错误，但是并不推荐
+这样做确实可以编过，并且没有 intellisense 错误，但是并不推荐
 
-此问题常见于发生：在编写头文件，但是 intellisence 报错，原因是没还没写对应的 Cpp 文件，而 Cpp 文件需要引入 stdafx.h
+此问题常见于发生：在编写头文件时，intellisence 报错，原因是没还没写对应的 Cpp 文件，而 Cpp 文件需要先引入 stdafx.h
+
+### 循环依赖
+
+https://thysrael.github.io/posts/4d93d9f0/
+
+```C
+#pragma once
+#include "b.h"
+
+struct A {
+    struct B *b;
+};
+```
+
+```C
+#pragma once
+#include "a.h"
+
+struct B {
+    struct A *a;
+};
+```
+
+这是循环依赖的问题。
+
+**解决：**
+
+使用前向声明，将其中一个 include 的头文件去掉（这里是 B），同时声明另一个类
+
+```C
+class A; // forward declaration
+
+struct B {
+    struct A *a;
+};
+```
+
+到目前，出现的文件都是头文件，这里不建议使用函数。
+
+并且 `struct A* a` 必须是指针，而不是变量，即 `struct A a`
+
+因为此时编译器要确定 B 的内存大小，必须指针才能固定大小（C++里，可以是 A&）
+
+写代码的时候的一个范式，**就是尽量减少 h 文件中的 include ，而在 c 中 include 文件**
+
+它和前一条的自包含并不矛盾，即头文件要对自己真正使用到的信息负责，但不要多负责
+
+在 .h 里，优先前向声明，减少不必要的 include
+
+不要依赖调用者先 include 某个东西
+
+### 自包含 struct（C）
+
+Struct 文法定义：
+
+`struct [tag] {member-list} variable-list ;`
+
+这意味着在没有 typedef 的情况下，{}后面的内容是局部变量名
+
+如果不给出 tag，说明是匿名结构体
+
+tag 是这个结构体的类名（结构体名字）
+
+结构体的自引用：
+```c
+struct my_struct{
+    int a;
+    struct my_struct b;
+}
+```
+
+这个不合法，因为无限制的大小
+
+必须是 struct my_struct* b; 内存大小确定
+
+用 typedef 构造自引用结构体：
+```c
+typedef struct{
+    int a;
+    StackNode* b;
+} StackNode;
+
+typedef struct StackNode_{
+    int a;
+    StackNode_* b;
+}StackNode;
+```
+
+第一个失败了，解析结构体内部时，StackNode 对于编译器而言，是未知的，因为当前结构体是匿名的，而必须完成当前结构体的完整定义，才能 typedef 为 StackNode，这产生了矛盾。
+
+而第二个就可以，因为编译器知道当前结构体就叫做 StackNode_ ，而 StackNode_指针的大小也是固定的。在整体定义好以后，才起别名。
 
 ### 类与编译通过
 
