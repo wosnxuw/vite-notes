@@ -7,6 +7,9 @@ export default defineConfig({
   base: "/vite-notes/",
   title: "Notes",
   description: "笔记",
+  markdown: {
+    math: true
+  },
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     //nav: [
