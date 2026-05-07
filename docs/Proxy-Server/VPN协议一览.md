@@ -40,8 +40,18 @@ Hysteria：利用 UDP 的一种协议
 
 问题：在搭代理时看到 socks 和 vmess，而环境变量，却把 socks_proxy 和 http_proxy 写在一起
 
-socks是一个通用转发代理协议，转发字节流，关注ip和端口
+socks 是一个通用转发代理协议，转发字节流，关注 ip 和端口
 
-http一开始确实是web协议，但是后来又发展出http代理，客户端也可以对一个 HTTP 代理服务器说：帮我取这个 URL
+http 一开始确实是 web 协议，但是后来又发展出 http 代理，客户端也可以对一个 HTTP 代理服务器说：帮我取这个 URL
 
-在代理软件里，你的代理是既有流量进入，又有流量传出。socks和http专注入站，vless专注出站。
+在代理软件里，你的代理是既有流量进入，又有流量传出。socks 和 http 专注入站，vless 专注出站。
+
+### WebRTC 泄漏
+
+chrome 需要安装扩展来避免 WebRTC 泄露
+
+VPN/代理通常只影响浏览器的普通 HTTP(S) 流量，但 WebRTC 的 STUN 请求可能绕过这些路径，从而暴露真实地址（STUN 也是应用层协议，和 HTTP 平级）
+
+https://ippure.com/
+
+这网站简直神了，基本上我能想到的 VPN 相关的东西，它是给集了个大成

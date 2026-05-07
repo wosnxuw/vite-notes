@@ -743,6 +743,8 @@ linux 系统，objdump --syms your_executable | less
 
 一般来说，在 vscode 里可以用远程调试，不需要在命令行里敲命令
 
+补充：现在其实你只需要和 AI 说：“帮我把 `.vscode` 配置好，使得项目可以调试即可。”
+
 编译时记得带 -g
 
 进入程序
