@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vite-notes
+  namespace: vite-notes
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - notes.wosnxuw.top
+      secretName: vite-notes-tls
+  rules:
+    - host: notes.wosnxuw.top
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: vite-notes
+                port:
+                  number: 80

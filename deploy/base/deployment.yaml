@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vite-notes
+  namespace: vite-notes
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vite-notes
+  template:
+    metadata:
+      labels:
+        app: vite-notes
+    spec:
+      containers:
+        - name: vite-notes
+          image: ghcr.io/wosnxuw/vite-notes:bootstrap
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 20m
+              memory: 64Mi
+            limits:
+              cpu: 300m
+              memory: 256Mi
