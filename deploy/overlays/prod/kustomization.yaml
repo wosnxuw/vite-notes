@@ -3,4 +3,4 @@ resources:
 
 images:
   - name: ghcr.io/wosnxuw/vite-notes
-    newTag: bootstrap
+    newTag: bootstrap-20260613111624
