@@ -13,6 +13,8 @@ spec:
       labels:
         app: vite-notes
     spec:
+      imagePullSecrets:
+        - name: ghcr-pull
       containers:
         - name: vite-notes
           image: ghcr.io/wosnxuw/vite-notes:bootstrap
