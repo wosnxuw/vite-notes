@@ -52,7 +52,7 @@ Docker VMM 是一个 Beta 选择，但是它的提示是性能更优
 
 磁盘在 `~/Library/Containers/com.docker.docker/Data/vms/0/data/Docker.raw`
 
-### 命令行
+### 确保启动
 
 命令行使用 docker，你需要本机先启动 docker，别在没启动 docker 时使用，而不知道哪里错了
 
@@ -65,6 +65,12 @@ Docker VMM 是一个 Beta 选择，但是它的提示是性能更优
 容器类似于跑起来的进程
 
 所以和普通程序一样，数据并不能放在镜像里，而是放在镜像外面
+
+重点：容器由镜像（只读层） + 容器层（读写层）组成
+
+容器运行时，所有写入（修改、创建、删除）都会进入该容器的特定可写层
+
+只要容器不被删除，可写层一直保存在你的磁盘上，这也是容器默认被留着的原因（即 start restart 后都在）
 
 ### 镜像位置及复用
 
@@ -214,3 +220,67 @@ docker-compose.yml 里面可以配置多个容器，统一部署
 在 docker 里，写 dockerfile 就是写服务
 
 服务是对容器组（或容器集群）的**声明式描述**：你在服务里告诉编排系统（Docker Swarm、Kubernetes、Compose 等）想要运行多少个副本（replicas）、用哪个镜像（image）、要挂载哪些网络或存储卷、采用怎样的更新策略（rolling update）
+
+### 常用命令
+
+镜像：
+
+docker image ls
+
+docker pull = docker image pull
+
+docker push = docker image push
+
+容器：
+
+docker container ls
+
+docker ps = docker container ps
+
+这俩一回事
+
+启动：
+
+docker run
+
+参数极多，很多时候不得不写成启动脚本来启动，否则记不住
+
+-d 后台运行
+
+-it 交互式运行（一旦出去，容器也结束了）
+
+--name 一般要起名，否则 ID 是系统给的随机字符
+
+--rm 退出后，自动删除
+
+-p 端口映射 -p 8080:80 前面的是主机，后面是容器
+
+-it 和 --rm 很多时候一起用，并不重复
+
+你需要搞清楚三件事情
+
+（1）容器的主进程结束
+
+（2）容器停止
+
+（3）容器本身被删掉
+
+-it 是当你 exit 时，主进程 bash 退出，所以容器也停止了，但是没被删掉（即 docker ps 还能看到）
+
+--rm 才是删掉
+
+docker start
+
+run 是创建一个新的容器，start 是启动一个存在的但是停止的
+
+执行命令（已经启动了）：
+
+docker exec -it {id/名字} /bin/bash
+
+日志：
+
+docker logs -f container
+
+实际上在用开源项目 or 公司内，应该是大部分的命令都是
+
+docker compose，因为很多时候不止跑一个容器

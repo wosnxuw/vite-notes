@@ -34,4 +34,8 @@ V2RayN 里面有几个配置的位置
 
 无论是 Codex 命令行还是 App，最终看的都是两个系统环境变量
 
-所以必须设置 no_proxy
+所以必须设置 no_proxy，V2RayN 保持默认状态
+
+### 备注
+
+如果你还开启了 tailscale，你需要关掉使用 tailscale 内部 DNS 这个功能
