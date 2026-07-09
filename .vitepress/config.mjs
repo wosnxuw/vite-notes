@@ -1,10 +1,12 @@
 import { defineConfig } from 'vitepress';
 import { generateSidebar } from 'vitepress-sidebar';
 
+const base = process.env.VITEPRESS_BASE || '/';
+
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   srcDir: "docs",
-  base: "/",
+  base,
   title: "Notes",
   description: "笔记",
   markdown: {
