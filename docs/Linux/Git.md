@@ -46,8 +46,6 @@ commit 的默认行为是：
 
 即 git init 后，默认分支叫什么的问题
 
-
-
 ### remote
 
 remote 本质和 email 差不多，是一个配置项的“键”
@@ -59,6 +57,16 @@ remote 本质和 email 差不多，是一个配置项的“键”
 git 默认将你 clone 的那个地址设置为 origin
 
 如果你是 fork 别人的仓库，那你的仓库是 origin，原作者是 upstream
+
+### SSH 和 HTTPS
+
+Github 早已不允许使用账号密码来修改仓库了
+
+Git 会根据远端的 url 来区分，如果是 git@ 则走 SSH，如果是 https:// 则走 HTTPS
+
+在本地，SSH 需要像登录服务器那样创建密钥对，并填写 config，在网页上粘贴公钥
+
+HTTPS 则更为特殊，git 会根据配置中的 credential.helper 所指示的凭据管理器（根据 OS 不同有区别）来调用并获取对应的 Token
 
 ### origin/main
 
