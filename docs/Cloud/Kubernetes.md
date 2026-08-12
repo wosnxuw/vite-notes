@@ -14,7 +14,7 @@ Kubernetes 源于古希腊语，意为舵手、领航员，包括其 Logo
 
 ### cgroup 和 chroot 和 namespace
 
-namespace 负责能看到什么
+namespace 负责进程能看到什么
 
 cgroup（control groups）负责监控与限制资源的使用，把若干进程分到一个控制组，整组进行限制
 
@@ -46,7 +46,7 @@ Kubernetes = 开源容器编排平台 + API 规范 + 生态标准
 
 “安装 Kubernetes”本质上是把所有组件部署好，不是一个单独二进制程序能自然完成的事情。
 
-所以，实际使用上，很少有人直接手工装 Kubernetes 的各种组件，而是用用某个发行版或托管服务
+所以，实际使用上，很少有人直接手工装 Kubernetes 的各种组件，而是用某个发行版或托管服务
 
 ### kubeadm K3s minikube
 
@@ -60,11 +60,15 @@ minikube 是一个轻量级 K8s 发行版，目标在本机运行单 node（单�
 
 Amazon EKS/Google GKE 等等，云服务商们提供的集群属于 IaaS
 
+RKE2 也是一个发行版，它的描述是 Rancher 面向企业用户的下一代 Kubernetes 发行版
+
+历史上有一家独立公司叫 Rancher Labs。它开发了 Rancher、RKE、K3s 等项目，SUSE 在 2020 年把这家公司整个收购了
+
 ### cluster、node 和 pod
 
-cluster 集群 ≈ 整个 K8s，即 控制平面 + 工作节点 + 跑起来的服务们（实际上在 kubectl 里能找到，就算一个集群，切换 cluster，需要切 kubectl 的配置文件）
+cluster 集群 ≈ 整个 K8s，即 控制平面 + 工作节点 + 跑起来的服务们（在 kubectl 里能找到，就算一个集群，切换 访问的集群，需要切 kubectl 的配置文件）
 
-在生产环节里，一般有多个集群，开发、测试、生产等
+在生产环节里，一般有多个集群，开发、测试、生产等；一个集群内部，也可能划分多个子命名空间，来做不同的事情
 
 node 节点（如果机器翻译翻译成节点的东西，一般就是指 node，pod 很多时候机翻会跳过不翻译，或者被翻译为荚）
 
@@ -116,114 +120,142 @@ K8s 还有一些常见插件：
 
 （5）网络插件：分配虚拟 ip
 
+备注：实际上这一节属于原理层面，实际应用中，并不关注
+
 ### 控制平面部署
 
-传统上，控制平面在一个单独的主机上，直接是一个 systemd 服务。也就是 K3s 的做法，就问你 kube-apiserver 是不是 Pod？
+传统上，控制平面在一个单独的主机上，直接是一个 systemd 服务。也就是 K3s 的做法，就问你的 kube-apiserver 是不是 Pod？
 
 kubeadm 常见的是，将控制平面组件，作为静态 pod，用 kubelet 在特定 node 上管理
 
 控制平面作为 Kubernetes 集群内部的 Pod 运行，由 Deployment 和 StatefulSets 或其他 Kubernetes 原语进行管理
 
+### 使用
 
+在 Rancher 的 WebUI 面板上它左侧大概是这样（我列举应该关注的）
 
-### 内部服务与外部服务
+#### 集群
 
-内部服务就是指类似数据库，不对外公开，用户不可访问
+##### 项目/工作空间
 
-外部服务就是指类似前端，对外公开，用户可访问。因此需要在 node 上开一个端口，并和 svc 的端口做映射
+#### 工作负载
 
-### svc Service 服务
+##### Deployment
 
-pod 容易死掉，如果换新，ip 会变化。它解决访问入口不能变的问题。
+它管理 pod 如何创建
+
+##### Pod
+
+真正运行代码，意义不大，你可以看看镜像是否是你需要的
+
+#### 服务发现
+
+##### svc Service 服务（内部）
+
+pod 容易死掉，如果换新的，ip 会变化，它解决访问入口不能变的问题。
 
 将一组 pod 封装为一个 service，对外统一访问，Service 的 ip 不变，对外提供稳定服务，对内将请求转发到健康的 pod 上
 
-### ing Ingress 入口
+在这里，目标那一栏，你可以看到 pod 对内的端口，比如 10.96.122.23:6090
+
+注意⚠️：口语上，服务可能是指某个 pod，或者甚至整套系统/应用，但是在 k8s 里，service 的直译是服务
+
+##### ing Ingress 入口（外部）
 
 管理从集群外部访问集群内部服务的入口和方式，也可以配置域名、负载均衡、SSL 证书等
 
 外部用户访问时，请求先打在 ingress 上，然后它通过 kube-proxy 来转交给 pod
 
-### Development
+其实就是给外部一个域名，这里你可以直接看到，每个命名空间对应的域名是什么
 
-当一个节点坏掉了，如何提供服务呢？答案是把 node 复制几份，让 svc 统一管理
+#### 存储
 
-将多个 pod 组织在一起，包括滚动更新等功能
-
-### cm ConfigMap
+##### cm ConfigMap
 
 由于读写数据库需要知道数据库的地址、密码，这又得配置，所以 K8s 提供了统一的配置入口
 
-### secret
+点进去之后，“相关资源”里你可以看到谁引用了它
 
-专门配置密码的组件
+##### Secret
 
-### Volume
+专门配置密码的组件，有时候也被放置 Helm 的部署记录
 
-挂载给数据库，让数据库的数据持久化
+##### Storage Class
 
-### sts
+“使用哪种存储系统、怎么创建磁盘”的模板
 
-StatefulSet
+##### pvc PresistentVolumeChain
 
-数据库是由状态的，多个数据库之间数据要同步，用这个东西替代 Development
+声明需要多大空间的申请
+
+##### pv PresistentVolume
+
+集群里实际可用的一块存储，挂载给数据库，让数据库的数据持久化
+
+它们两个之间，由 K8s 自动绑定
 
 ### 对象 和 Pod 之间的关系
 
-Development、Service、Ingress 都不是某个具体的 Pod
+这个概念是理解 K8s 的核心
 
-它们是一条声明/规则，描述了需要什么镜像、几个副本，pod 的样子
-
-所以你需要
-
-按照文档的说法，这个应该叫做 K8s 对象，持久实体，一旦创建了对象，Kubernetes 系统就会持续确保该对象存在
-
-Controller 则是一个长期运行的程序，有的内置在 K3s 进程里，有的是 Pod
+一个 Pod 需要综合所有的对象，既要从 Service 里拿到访问其他服务，也需要从 ConfigMap 里拿配置，也需要 Deployment 指定它需要运行哪个镜像，几个副本，还需要 PVC 用于挂载日志目录
 
 ### 对象创建、管理
 
-可以直接用命令创建 `kubectl create deployment nginx --image nginx`，但是这种对象几乎没用
+1、可以直接用命令创建 `kubectl create deployment nginx --image nginx`，但是这种对象几乎没用
 
-或者是  `kubectl apply -f nginx.yaml` （也可以是 json，但是 yaml 居多）
+2、使用 YAML 创建，比如 `kubectl apply -f nginx.yaml` （也可以是 json，但是 yaml 居多）
 
 比如 yaml 描述了一个 Service 资源；其中字段 kind: Service 告诉 Kubernetes 这是哪类资源；Kubernetes API Server 会按标准解析、校验和保存它，然后相关控制器会把它转成实际可用的服务转发规则
 
 yaml 的优势是，可以存储在 git 上，并且有一些模版可以抄
 
-### K8s 的一个整体理解
+Helm 是 RKE2 内置了的一个安装工具，它也是在 K8s 外部，然后通过 API 来访问并管理各种对象，所以你能在 WebUI 里看到，它建议你从 Helm 里管理，而手工修改 YAML 可能会随时被覆盖
 
-K8s 是你声明你需要什么东西
+### 登陆与连接
 
-Deployment = 期望状态配置 = 那个 yaml 文件
+你需要使用一个叫做 kubeconfig 的 YAML 文件来做认证
 
-Controller = 持续执行对账逻辑的程序 = 一个死循环，不断检查服务个数是否对劲
+这个不是部署用的那个，它只记录 URL、身份、密钥
 
-Pod = 真正被运行出来的实例
+kubectl 会按以下顺序寻找这个文件
 
-kubectl 类似于前端，所以也可以脱离 master 和 worker，在你自己的电脑上看
+1、KUBECONFIG 所指向的位置，可以指向多个
 
-它使用一个配置文件，位置在 `~/.kube/xxx.yaml`
+2、~/.kube/config 文件
 
-API Server 跑在真实的控制平面上，用于处理你的通过 kubectl 传来的请求
+3、--kubeconfig /path/to/config 临时指定
+
+如果你同时要管理多个集群，那么你可以 merge config，也可以单独存放多个文件
+
+~~~
+~/.kube/
+├── config
+└── configs/
+    ├── fabu-dev.yaml
+    └── fabu-prod.yaml
+~~~
+
+前者的优势是，可以用 kubectl config use-context 切换集群，不需要手工敲配置文件位置，劣势是合并、分离需要花额外的精力
 
 ### kubectl
 
-1、get
+| Rancher 菜单 | kubectl 命令 |
+|---|---|
+| 工作负载 → Deployments | `kubectl get deployments` |
+| 工作负载 → Pods | `kubectl get pods` |
+| 服务发现 → Services | `kubectl get services` |
+| 服务发现 → Ingresses | `kubectl get ingress` |
+| 存储 → ConfigMap | `kubectl get configmaps` |
+| 存储 → PVC | `kubectl get pvc` |
+| 存储 → Secret | `kubectl get secrets` |
+| 存储 → PV | `kubectl get pv` |
+| 存储 → StorageClass | `kubectl get storageclass` |
 
-`kubectl get nodes`
 
-`kubectl get pods -n xxx`
 
-`kubectl get namespace/deployments/configmap/svc/secret/ingress`
 
-2、apply
-
-描述是：通过定义了 K8s 的资源的文件（yaml）来管理应用程序，在集群中创建和更新资源
-
-`kubectl apply -f deployment.yaml`
-
-`kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.20.2/cert-manager.yaml`
-
+### Todo
 
 ### 笔记更换到更云原生的部署方式
 
