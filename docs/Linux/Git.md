@@ -95,3 +95,29 @@ merge 是直接捏起来，比较好理解。它是两个分支之间进行捏�
 rebase 是试图把一侧的分支剪枝，然后拼接到另一侧后面
 
 但是因为 commit 的节点变不了（可以认为是父亲无法修改），本质是丢掉右侧（没有任何 branch 能到，30 天后被清理），然后在左侧添加新的 commit
+
+### submodule
+
+允许嵌套，但是必须 `git submodule update --init --recursive`才能递归初始化
+
+`.gitmodules` 文件只负责记录直接的子模块名字、路径、远程地址
+
+父模块使用 gitlink 来记录子模块的 commit，它不是一个文件，但是在 VSCode 等 GUI / status 里可见
+
+在使用 `.gitmodules` 下载子模块后，使用 gitlink 来找到使用哪个 commit（子模块的 HEAD 指向哪里）
+
+### worktree
+
+给同一个 Git repository 再挂一个工作目录 + HEAD + index
+
+worktree 必须有自己的 HEAD，它可以从本地某个 commit 直接派生，但是一般是从某个 branch 派生
+
+一个 branch 同时只能被一个 worktree 占用
+
+从理论上来说，多个 working tree，共享同一个 repository，互相知道对方的存在，所以不存在谁是“主”/“原始”一说
+
+它和你直接把仓库复制一次的区别是，后续的所有操作，多个 worktree 之间是共享可见
+
+A commit 了，B 立即可见；如果你只复制仓库，不推拉远端，那么是不知道的
+
+同步的机制是靠共享同一份 .git 数据指针，仍然是同一份数据库
