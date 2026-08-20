@@ -100,17 +100,13 @@ GHCR 是 GitHub 版的镜像仓库，镜像名字必须是 `ghcr.io/owner/repo:t
 
 GITHUB_TOKEN 自带写权限
 
-### 存储卷
+### 存储卷/数据卷
 
-“被系统抽象出来、可以挂载使用的存储区域”，被 Docker 管理的一个持久化目录
+“被系统抽象出来、可以挂载使用的存储区域”，被 Docker 管理的一个持久化**目录**
 
 Volumes 设计为持久存储可读写，但是镜像 Images 是只读的，Volumes 让数据独立于容器生命周期
 
-在 Linux 上，卷默认被放在 `/var/lib/docker/volumes/mysql-data/_data`
-
-Windowsw 上，在 `\\wsl.localhost\docker-desktop\mnt\docker-desktop-disk\data\docker\volumes` （Docker version 27.5.1, build 9f9e405）；这个位置，只有在 docker 启动后，才能看到。一旦 docker 结束，该位置会变成一个 json
-
-当然你在 GUI 界面的 Volumes 里可以直接看到所有卷
+在 GUI 界面的 Volumes 里可以直接看到所有卷，Linux `docker volume ls` 看（但是没啥用，你可能不知道卷和容器的对应）
 
 对于 Linux，就是直接占你的本机磁盘的空间；对于 win/mac 则是占你虚拟机内部的空间，最后体现在 vhdx 里
 
@@ -120,30 +116,38 @@ Windowsw 上，在 `\\wsl.localhost\docker-desktop\mnt\docker-desktop-disk\data\
 
 2、一个卷可以被多个容器同时使用
 
-命令：
+对应关系：
 
-```shell
-docker volume create mysql-data
-docker run -v mysql-data:/var/lib/mysql mysql
-```
+compose 会按照把卷名命名为 `<项目名>_<卷名>`，卷名就是你在 volumes: 写的
+
+其他情况尽量不要搞匿名卷
 
 ### 绑定挂载
 
 **Docker 存储数据的两种主要“流派”：具名卷 (Named Volumes) 和 绑定挂载 (Bind Mounts)**
 
-即直接拿本记目录去挂载（都是挂载目录，一个在本机，你可以自己看见，修改；一个被 Docker 管理）
+Mounts 即直接拿本机目录去挂载（其实都是挂载一个目录，只是一个在本机，你可以自己看见，修改；一个被 Docker 管理）
 
 n8n 是前者，Milvus 是后者
 
-放在 yml 旁边的好处是所见即所得，迁移简单
+挂在目录放在 yml 旁边的好处是所见即所得，迁移简单
 
-追求性能用 Volumes
+在 Windows 上，追求性能用 Volumes
 
 命令：
 
 ```shell
 docker run -v ~/project:/app node
 ```
+
+### docker root
+
+在那个 docker 文件夹下，volumes 是真的存放你的存储卷，就是一个个都目录，你可以直接 cd 进去查看
+
+镜像是若干只读层，容器运行时在上面叠一个可写层
+
+至于你的镜像在哪，Linux 上取决于多种因素，包括（1）启用 containerd 镜像存储，还是默认布局（2）containerd 是否是独立服务
+
 ### 网络
 
 在 Mac/Windows 上，Docker 在一个虚拟机里，虚拟机的网络是 NAT 模式
@@ -155,6 +159,12 @@ docker run -v ~/project:/app node
 所以需要端口映射 -p (ports)
 
 expose 只声明容器内部服务端口，主要给同一个 Docker 网络里的其他容器看
+
+每个 compose 项目，都是一个独立的小型局域内网，里面每一个容器获取一个 ip，比如 172.23.0.2，compose 内部有小型 DNS，所有内部容器之间不需要写死 IP
+
+整个项目，docker 会启动一个 br-xxx 网桥，相当于交换机，把所有容器连到这里，容器上外网就好比 NAT，容器总是能访问外网。每个项目的网络是互相隔离的，docker 会自动挑一个不和别人冲突的网段，所以每个 compose 的网关的 ip 也不一样。
+
+但是大多情况下，我们希望容器的服务对外暴露，所以此时需要做端口转发，比如 宿主机 8090 → 容器 8080。端口转发的方向是从外到内：宿主机 -> 容器。8090:8080 的意思是"发到宿主机 8090 的访问，转接进容器的 8080"。
 
 ### Dockerfile
 
@@ -176,7 +186,29 @@ expose 只声明容器内部服务端口，主要给同一个 Docker 网络里�
 
 有一些 docker-compose.yml 只依赖远程镜像，这种你可以把它拿走，在任何位置跑起来
 
-还有一些依赖于当前目录，比如 `duild .`，或者依赖 env 文件之类的
+还有一些依赖于当前目录，比如 `duild .`，或者依赖 env 文件之类的，这种就不建议挪出仓库了，一般情况下，就放在仓库里就好
+
+使用 `docker compose ls -a` 查看当前在跑的 compose，因为一组容器中可能包含初始化容器，所以 exited(2), running(7)，也可能是正常的状态
+
+compose 声明的容器和普通 docker run 出来的容器是一样的，所以 `docker container ls -a` 能看到的容器中也包含 compose 启动的
+
+compose 的 Exited 和 普通容器也是一样的，也是容器还没死（但是其实一般问题是镜像占据空间，容器可写层一般还好）
+
+单独杀死一个 compose 中的容器，和它的重启策略有关，如果是 restart: always，那它还会起来，如果没有，它就死了（其他容器可能也会无法正常使用）
+
+compose 项目名的决定顺序（从高到低）
+
+1. -p / --project-name 命令行参数
+
+2. COMPOSE_PROJECT_NAME 环境变量（或 .env 里定义）
+
+3. compose 文件顶层的 name: 字段
+
+4. 都没有 → 项目目录的 basename（自动转小写）（"项目目录"在 compose v2 里默认 = 第一个 -f 文件所在的目录）
+
+启动时，确实必须找到 yaml，但是关闭时可以不再找 yaml，直接按照名字指定 `docker compose -p name down`
+
+down -v 会同时清理关联的数据卷
 
 ### 从命令行运行容器
 
