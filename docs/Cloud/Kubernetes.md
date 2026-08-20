@@ -252,10 +252,41 @@ kubectl 会按以下顺序寻找这个文件
 | 存储 → PV | `kubectl get pv` |
 | 存储 → StorageClass | `kubectl get storageclass` |
 
+### GitOps 工作原理
 
+关键点是：Git 里不仅有“代码”，还有“我要部署哪个版本”
 
+在我的笔记搭建流程里，是这样的：
 
-### Todo
+CI 层级：
+
+你 push 代码；GitHub 知道，并触发 webhook；tekton 的 tirgger 收到；tekton 去拉代码、跑 pipelene；构建出镜像后推送到 GHCR；然后修改 git 里的部署清单的 tag（就在当前仓库下）；
+
+CD 层级：
+
+git 的部署清单变化；Argo 一直在监听它，检查到并 apply 它到 K3s；K3s 拉取镜像、逐步调整集群到目标状态
+
+在公司的代码流程里，是这样的：
+
+CI 层级：
+
+你 push 代码，gitlab 发现 commit，自动触发 Pipeline 里的 CI/CD，然后逐步走流程，包含基本-检查-打包-镜像-冒烟-部署。如果你的代码是 master 或者 release- 分支，就会自动部署
+
+部署的时候，是在 gitlab CI 里运行 python 脚本，脚本直接写在仓库 ./ci/ 里，目标是修改另一个，专门用于部署的 git 仓库（收集多个仓库的 yaml）
+
+CD：Argo 来监控部署用 git 仓库，产生变化就应用到集群里
+
+【备注】：Argo 虽然也在集群内，但是它不属于某一个代码仓库，因为 Argo 会同时处理多个代码仓库。甚至代码仓库可以完全不提到它，代码仓库只声明所需的状态，Argo 来监视，代码仓库不需要知名 Argo，监控什么是 Argo 自己的配置。
+
+其他：
+
+Traefik 是 Ingress，无论是 push 触发到 tekton-hooks，还是用户访问，都是它先来处理
+
+所以整个流程是靠 K8s 的没错，但是 K8s 只是，把系统逐步调整到你期望的样子，并不是真的负责具体的 CI/CD
+
+Q：为什么 CI 是等待 webhook，而 CD 是自己监听？
+
+A：CI 只处理一次，而 CD 是持续工作，以免谁改了 Deployment 之类的
 
 ### 笔记更换到更云原生的部署方式
 
@@ -323,24 +354,3 @@ ci 这个 namespace 是每次执行产生的 TaskRun Pod，相当于具体的执
 ci   vite-notes-build-9nvsx-build-push-update-manifest-pod   0/3     Error       0          10h
 ci   vite-notes-build-qbqp8-build-push-update-manifest-pod   0/3     Completed   0          10h
 ```
-### GitOps 工作原理
-
-关键点是：Git 里不仅有“代码”，还有“我要部署哪个版本”
-
-CI 层级：
-
-你 push 代码；GitHub 知道，并触发 webhook；tekton 的 tirgger 收到；tekton 去拉代码、跑 pipelene；构建出镜像后推送到 GHCR；然后修改 git 里的部署清单的 tag；
-
-CD 层级：
-
-git 的部署清单变化；Argo 一直在监听它，检查到并 apply 它到 K3s；K3s 拉取镜像、逐步调整集群到目标状态
-
-其他：
-
-Traefik 是 Ingress，无论是 push 触发到 tekton-hooks，还是用户访问，都是它先来处理
-
-所以整个流程是靠 K8s 的没错，但是 K8s 只是，把系统逐步调整到你期望的样子，并不是真的负责具体的 CI/CD
-
-Q：为什么 CI 是等待 webhook，而 CD 是自己监听？
-
-A：CI 只处理一次，而 CD 是持续工作，以免谁改了 Deployment 之类的
