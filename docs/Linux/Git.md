@@ -121,3 +121,99 @@ worktree 必须有自己的 HEAD，它可以从本地某个 commit 直接派生�
 A commit 了，B 立即可见；如果你只复制仓库，不推拉远端，那么是不知道的
 
 同步的机制是靠共享同一份 .git 数据指针，仍然是同一份数据库
+
+### 分支图轨道
+
+某一个提交节点曾经属于 bugfix/foo 这个事实并不存在于 commit 数据里
+
+我们通常想象的是：
+
+```
+main:        A---B---C-------F---G
+                     \     /
+feature:              D---E
+```
+
+但完全可能当时是：
+
+```
+old-feature: A---B---C-------F
+                      \     /
+main:                  D---E
+```
+
+然后后来经过 branch 删除、重命名、reset、重新创建，main -> G
+
+不过 commit 节点有两个 parent，这两个 parent 有先后
+
+在这里这个 F 这里，可能 first = C
+
+### 传出的更改
+
+传出的更改（Outgoing Changes）：当前本地分支中，存在于本地、但还不存在于它所跟踪的远程分支历史中的 commit
+
+正常情况就是你本地 main 和 origin/main 的差异
+
+但是如果 merge 了，比如你是在 feature 上开发，然后你本地 merge 到 main，此时你想要推 main
+
+```
+       origin/feature
+              ↓
+              D---E
+             /     \
+A---B---C-----------M
+        ↑           ↑
+   origin/main     main
+```
+
+只要你处于 main，那么你的传出就是：D + E + M
+
+即使是 D，已经 push 过，但是 push 到 origin/feature 分支上了，因为对于 origin/main 来说，它不知道 D
+
+逻辑上就是 main 相比 origin/main 多出来的历史，而不管其他分支
+
+所以说，Lazygit 里，是默认选一个分支，观察可以抵达这个 ref 的历史
+
+VSCode 里，默认也是这样，你最开始在“自动”那个位置，切换到“全部”，以便于你观察是否有死、不合理的分支遗留。全部即试图同时绘制一整个 DAG 图。
+
+### 以列表/树形式查看
+
+这个说的是 diff 怎么看，是按照文件目录树来组织，还是扁平化。如果改动文件很多建议树，否则列表就够了
+
+### 转到当前历史记录项🎯
+
+把当前 HEAD 所指向的 commit 找出来，滚动到它的位置并高亮
+
+适用于历史极多，滚的太远回不来了
+
+### chrry-pick
+
+主线分支持续先前走，迭代一大堆功能，某一天突然发现并修复重要 bug（或反过来）
+
+现在要把 bug 单独修复到 release 分支上，而新功能不进入
+
+即把那个 bug-fix 的 commit，单独拿出来，补到 release 上
+
+```
+main
+A---B---C---D---E---F---X
+
+release
+A---B---R1---R2---X'
+```
+
+不能 merge 是因为不能携带新功能，所以 parent 不同
+
+X 和 X' 从 cherry-pick 完成的那一刻起，没有 Git 图意义上的关联
+
+但是默认情况下，commit message 会沿用，你也可以在 message 里写清楚是从哪里 pick 的
+
+### log reflog status diff
+
+log 相当于看看 DAG
+
+reflog 看本机的指针都怎么移动的
+
+status 看摘要，只能看到有无变化
+
+diff 能看到具体哪一行从什么改成了什么
