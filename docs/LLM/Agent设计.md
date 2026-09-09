@@ -149,3 +149,20 @@ F 是一个叫做 functions.exec 的特殊工具，里面可以使用 ABCDE
 
 但是不强制用，模型愿意用 python 也允许
 
+此工具会根据模型元数据决定是否注册，所以 Codex + Qwen，出现无法使用 apply_patch，并不是它不会用（或许真的不会），但是直接原因是 Qwen 看不见
+
+### Freeform + Lark grammar
+
+Freeform 是一种工具调用的形式，允许直接传文本
+
+传统工具调用，AI 必须写好 JSON，但是 Lark grammar 定义了一种文本模版，AI 不必手写 JSON，格式更宽松（但依然有）
+
+apply_patch 就是这种工具
+
+### Codex Read/Search
+
+UI 显示的 Read、Search 是解析命令后生成的标签，不是独立工具
+
+rg 显示为 Search/List，cat/sed 显示为 Read，兜底显示为 Run
+
+它们都在 exec_command 工具里面（JSON function）
