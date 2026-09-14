@@ -166,3 +166,13 @@ UI 显示的 Read、Search 是解析命令后生成的标签，不是独立工�
 rg 显示为 Search/List，cat/sed 显示为 Read，兜底显示为 Run
 
 它们都在 exec_command 工具里面（JSON function）
+
+### 上下文长度
+
+在 OpenAI v1/models 的端点，其实是拿不到模型的上下文长度和多模态的信息的，API 本身如此
+
+Agent 实现上，一般是外界其他数据
+
+比如 PI 外界了一个 models.dev 的数据库，记录了常见模型和常见提供商的信息，如果你填写的 URL 和模型名字能对应上，那么就能给一个正确的数值
+
+因此外界完全自定义的模型其实无法知晓上下文长度，必须手工配置
