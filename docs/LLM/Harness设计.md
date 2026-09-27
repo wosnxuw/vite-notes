@@ -169,13 +169,19 @@ rg 显示为 Search/List，cat/sed 显示为 Read，兜底则显示为 Run
 
 即 exec_command 工具的参数，而不是直接有一个叫做 Read 的工具
 
-## Codex 独特设计
+## Code Mode
 
-### Code Mode
+据说 PI 要推出 Code Mode 了，所以这里聊一聊
 
-【此功能处于 Codex 内部，不对用户提供操控入口】
+### Codex Code Mode
 
-推测：看起来，像是 Codex 为了节约 token，并且提高速度，给普通工具设计的一套“bash”，并基于 js 语法实现
+【此功能处于 Codex 内部，不对用户提供操控入口，此功能通过端点拿到的模型元数据 models_cache.json 来声明开启状态，gpt-6 强制开启 CodeModeOnly】
+
+目标：为了节约 token，并且提高速度，给普通工具设计的一套“bash”，并基于 js 语法实现
+
+比如说，先搜索一个东西，拿到它的 ID，再用 ID 搜具体信息。如果是 Code Mode，那么可以将 ID 隐藏在中间结果里，减少一次往返。
+
+关键：被隐藏的东西是否和“上下文理解有关”，一个 ID 很可能不需要多往返一次，而如果必须看那个 ID 的字段构成，那么就没办法隐藏
 
 Codex 里分为三个模式（1）普通（2）CodeMode（3）CodeModeOnly
 
@@ -183,9 +189,11 @@ Codex 自己是提供几个工具的，比如 apply_patch 这种用于文件编�
 
 同时，你在 Codex 注册了一个 MCP 工具，提供 DE 两个独立工具
 
-（1）没区别，底层模型看到 ABCDE（2）模型看到的多一个 F，并且可以使用 A~F（2）模型看到多一个 F，并且只允许使用 F
+（1）没区别，底层模型看到 ABCDE（2）模型看到的多一个 F，并且可以使用 A~F（2）模型**能**看到一个 F，和部分**A**
 
-F 是一个叫做 functions.exec 的特殊工具，里面可以使用 ABCDE
+重点讨论 F，它是一个叫做 functions.exec 的特殊工具，里面可以使用 ABCDE
+
+比如，在 Codex 里，CodeModeOnly 会直接隐藏掉 apply_patch 工具的定义，而把 apply_patch 工具定义到 F 的参数里，所以模型是知道 apply_patch，但是无法直接调用 apply_patch，必须靠 F
 
 它用以解决，传统上必须先使用 D，才能使用 E 的困局，因为 E 的参数依赖 D
 
@@ -193,8 +201,20 @@ F 是一个叫做 functions.exec 的特殊工具，里面可以使用 ABCDE
 
 所以如果 D E 本身就在 bash 里，那本身就可以被编排
 
-此功能通过端点拿到的模型元数据 models_cache.json 来声明开启状态，gpt-6 强制开启 CodeModeOnly
-
 备注：必须是有先后次序的使用 DE，因为标准函数调用本身就支持一次 Call 调用多个
 
-沙盒默认可写范围是启动时的工作目录。所以不要在项目 A 的目录下启动 Codex，然后一直问项目 B 的问题——除非你通过 `codex --add-dir /path/to/B` 显式添加目录（但绝大多数用户不知道这个命令）。
+如果不做额外覆盖，普通模式下，大部分你常见的工具都隐藏了 exec_command apply_patch view_image MCP（具体工具也被收到 functions.exec）
+
+### OpenCode
+
+OpenCode 有一个实验性开关，开启后类似于 Codex 的 CodeMode，不会隐藏基本工具，主要是为 MCP 工具的编排服务
+
+### PI
+
+公开 RFC 没有提
+
+Armin 在探索，https://github.com/mitsuhiko/pi-codemode-mcp，但是在今天还没提到正式版里
+
+## WebSearch（服务端工具）
+
+todo
