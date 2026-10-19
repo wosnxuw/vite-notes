@@ -1,3 +1,5 @@
+https://earendil.com/posts/what-is-a-harness/
+
 ## 编辑工具
 
 ### Codex 的 apply_patch
@@ -171,7 +173,7 @@ rg 显示为 Search/List，cat/sed 显示为 Read，兜底则显示为 Run
 
 ## Code Mode
 
-据说 PI 要推出 Code Mode 了，所以这里聊一聊
+CodeMode 是 Cloudflare 提出的，把 MCP 工具转成 TypeScript API，让模型写代码调用。A\ 去年好像就跟进了此事。
 
 ### Codex Code Mode
 
@@ -211,9 +213,21 @@ OpenCode 有一个实验性开关，开启后类似于 Codex 的 CodeMode，不�
 
 ### PI
 
-公开 RFC 没有提
+Pi 在 1.0 版本同时引入 MCP 和 CodeMode
 
-Armin 在探索，https://github.com/mitsuhiko/pi-codemode-mcp，但是在今天还没提到正式版里
+Pi 默认更接近 Codex 的 CodeMode（on），同时支持配置显式切换到 CodeModeOnly（only）
+
+MCP 工具现在在 CodeMode 里面
+
+期望效果：把工具调用之间的数据处理放进 harness 侧的 JS 沙箱，减少中间结果进入模型上下文
+
+核心原因：工具，不只是在 Bash 上发生。非服务端工具，即 Harness 执行的工具，也不一定发生在 Bash 上，比如 MCP，那么这些工具需要一个编排调用的办法。
+
+https://mariozechner.at/posts/2025-11-02-what-if-you-dont-need-mcp/
+
+https://earendil.com/posts/you-said-no-mcp/
+
+当时这篇文章，MCP 的实现一般比较粗糙，直接将结果返回给模型，当时的处理是，靠小型 CLI 脚本，将 MCP 扭回 Bash。
 
 ## WebSearch（服务端工具）
 
