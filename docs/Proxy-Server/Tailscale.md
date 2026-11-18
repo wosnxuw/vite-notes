@@ -1,4 +1,4 @@
-### Tailscale
+# Tailscale
 
 Tailscale 按照其官方的介绍是：
 
@@ -8,13 +8,13 @@ Tailscale 的自己部署时架构大概是这样：
 
 一台总控下面挂着多台加入的机器
 
-### HeadScale
+## HeadScale
 
 **一台**核心服务器，上面部署 HeadScale，叫做控制平面，用于做用户认证。
 
 HeadScale 服务，内置了 DERP 和 STUN（embedded DERP），并且由 DERP 服务器充当 STUN 服务器。
 
-### Stun Derp
+## Stun Derp
 
 Stun: session traversal utilities for NAT
 
@@ -28,19 +28,19 @@ This is a Tailscale DERP server.
 
 It provides STUN, interactive connectivity establishment, and relaying of end-to-end encrypted traffic for Tailscale clients.
 
-### TailScale 客户端
+## TailScale 客户端
 
 tailnet 上其他所有设备，上面部署 TailScale 客户端
 
 核心服务器上，是没有 TailScale 客户端的，即不允许同时存在 TailScale 和 HeadScale，所以以后在有 TailScale 客户端的机子上 `tailscale status`，也看不到核心服务器
 
-### 多个 DERP
+## 多个 DERP
 
 可以是由某个加入了 tailnet 网络的 TailScale 节点提供，也可以是可以是第三方的服务器提供（因为它是瞎子）
 
 只要部署了 DERP 服务在跑，只需要你的 HeadScale 配置进来。
 
-### Tailscale 和 OpenVPN
+## Tailscale 和 OpenVPN
 
 OpenVPN 是传统的企业级 VPN（它既是一种协议，也有对应的软件）
 
@@ -54,7 +54,7 @@ Tailscale 基于的是 WireGuard，这里有必要理清楚
 
 WireGuard 是一个网络隧道协议，目标是替代 OpenVPN，将数据包加密后发送给其他节点，有点类似于建立链接
 
-### 对比 ssh
+## 对比 ssh
 
 ssh 的话，更侧重于主和从，谁登录谁，操纵谁。（虽然 ssh -L 也可以绑定端口）
 
@@ -81,3 +81,9 @@ Vless 和 SSH 和 设置里的 HTTP 端口直接代理到旁路由里，这是�
 WireGuard 更类似于网络层，他要建立虚拟网卡，传输 IP 包
 
 给主机提供虚拟私网。
+
+## 网段与系统路由特点
+
+- Tailscale 分配的 `100.64.0.0/10` 属于 **RFC 6598（CGNAT 共享地址空间）**，**不属于**传统私有局域网 IP（RFC 1918：`10.0.0.0/8`、`172.16.0.0/12`、`192.168.0.0/16`），因此许多代理软件默认的“绕过局域网 IP（`geoip:private`）”不会覆盖它。
+- 客户端会在系统内核路由表中注入明细路由（如 Linux 下 `ip route get 100.64.0.22` 会走 `dev tailscale0 table 52`）。
+- 像 `ssh 100.64.0.x` 这类不读取 `HTTP_PROXY` 环境变量的纯 TCP 程序，会直接走网络层（L3）命中 `tailscale0`；而遵循 `HTTP_PROXY` 的 HTTP 客户端如果在应用层（L7）没绕过代理，请求会先发往本地代理端口（如 `127.0.0.1:10808`），压根走不到内核的 `tailscale0` 路由。

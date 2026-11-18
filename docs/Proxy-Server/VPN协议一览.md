@@ -338,6 +338,8 @@ NaiveProxy 的核心优势是“像 Chrome”，不是“参数很多”。
 
 CDN 是部署环境，不是协议层；它会反过来限制你能选哪些传输方式。
 
+## 本地入站与客户端泄漏
+
 ### SOCKS / HTTP 入站
 
 问题：搭代理时会看到 socks、vmess，而环境变量又把 `socks_proxy` 和 `http_proxy` 写在一起。
