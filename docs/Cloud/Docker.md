@@ -255,6 +255,16 @@ docker-compose.yml 里面可以配置多个容器，统一部署
 
 服务是对容器组（或容器集群）的**声明式描述**：你在服务里告诉编排系统（Docker Swarm、Kubernetes、Compose 等）想要运行多少个副本（replicas）、用哪个镜像（image）、要挂载哪些网络或存储卷、采用怎样的更新策略（rolling update）
 
+### 日志
+
+容器有两种输出日志的办法
+
+（1）写到文件 --> 在 具名卷  和 绑定挂载 里找
+
+（2）输出到标准输出 --> Docker 日志驱动接收、保存 -->  docker logs
+
+Docker 常见的 `json-file` 日志驱动会把输出保存成宿主机上的 JSON 日志文件，可以有轮转
+
 ### 常用命令
 
 镜像：
