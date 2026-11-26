@@ -10,6 +10,7 @@ const folderPriority = [
   'Network',
   'Web',
   'Linux',
+  'OS',
   'C&C++',
   'Rust',
   'Python',
@@ -18,8 +19,6 @@ const folderPriority = [
   'OpenGL',
   'OCC',
   'hardware',
-  'macOS',
-  'Windows',
   'Web3',
   'life'
 ];

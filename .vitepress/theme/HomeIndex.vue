@@ -149,40 +149,34 @@ const catalog = [
     id: 'Software-Engineering',
     group: 'arch',
     domain: 'Software-Engineering',
-    summary: 'Agent 编码反模式观察、测试驱动开发边界与架构演进',
+    summary: 'Agent 编码反模式观察、控制反转与依赖注入、六边形/整洁架构、TDD 与 Qt MVC 实战',
     entries: [
       { title: 'Agent', path: '/Software-Engineering/Agent', note: '偶然复杂度 / 伪测试约束 / 黑盒执念' },
-      { title: 'TDD', path: '/Software-Engineering/TDD', note: '测试覆盖率与重构安全网' },
-      { title: '框架', path: '/Software-Engineering/框架', note: '控制反转与扩展点设计' }
+      { title: '软件架构、控制反转与TDD', path: '/Software-Engineering/软件架构、控制反转与TDD', note: 'IoC & DI / 六边形与整洁架构 / Chicago vs London TDD / Qt MVC' }
     ]
   },
   {
     id: 'Tools',
     group: 'graphics',
     domain: 'Tools',
-    summary: 'SWIG 跨语言绑定、ANTLR 词法语法分析、FFmpeg 编解码与机器人路径规划',
+    summary: 'SWIG 跨语言绑定与窗口嵌入、Flex/Bison/ANTLR4 编译前端、FFmpeg 音视频与 OR-Tools 路径规划',
     entries: [
-      { title: 'SWIG', path: '/Tools/SWIG', note: 'C++ 接口包装为 Python / C# 模块' },
-      { title: 'SWIG窗口嵌入', path: '/Tools/SWIG窗口嵌入', note: '跨语言原生窗口句柄父子挂载' },
-      { title: '自动化导出函数', path: '/Tools/自动化导出函数', note: 'AST 解析与头文件符号提取' },
-      { title: '词法语法分析', path: '/Tools/词法语法分析', note: 'Flex & Bison / 上下文无关文法' },
-      { title: 'ANTLR', path: '/Tools/ANTLR', note: 'G4 语法定义与 Visitor / Listener 遍历' },
-      { title: 'ffmpeg命令行', path: '/Tools/ffmpeg命令行', note: '封装转码 / 滤镜链 / 硬件加速' },
-      { title: 'ffmpeg库', path: '/Tools/ffmpeg库', note: 'libavcodec / libavformat 解复用帧流' },
-      { title: 'Qt', path: '/Tools/Qt', note: '信号槽元对象系统与事件循环' },
-      { title: 'Nerf&3DGS', path: '/Tools/Nerf&3DGS', note: '神经辐射场与 3D Gaussian Splatting' },
-      { title: 'MTSP', path: '/Tools/MTSP', note: '多机器人焊接路径规划与多旅行商建模' }
+      { title: '1-跨语言绑定与原生窗口嵌入：JNI、JNA与SWIG实战', path: '/Tools/1-跨语言绑定与原生窗口嵌入：JNI、JNA与SWIG实战', note: 'Doxygen 符号提取 / SWIG typemap / JavaFX+Swing 嵌入 C++ HWND' },
+      { title: '2-词法与语法分析器：从Flex&Bison到ANTLR4', path: '/Tools/2-词法与语法分析器：从Flex&Bison到ANTLR4', note: '.l & .y 三段式 / yylval / ANTLR4 .g4 / Listener vs Visitor' },
+      { title: '3-FFmpeg音视频处理：容器封装、编解码与C-API', path: '/Tools/3-FFmpeg音视频处理：容器封装、编解码与C-API', note: 'Muxer & Codec / 码率计算 / AVPacket vs AVFrame / SwsContext' },
+      { title: '4-运筹优化与工业路径规划：TSP、VRP与OR-Tools实战', path: '/Tools/4-运筹优化与工业路径规划：TSP、VRP与OR-Tools实战', note: '圆环质心聚合 / 尖点 0.1 引导系数 / 双机器人负载均衡与防撞' }
     ]
   },
   {
     id: 'OpenGL',
     group: 'graphics',
     domain: 'OpenGL',
-    summary: '现代可编程渲染管线、光栅化与深度缓冲、Compute Shader 通用计算',
+    summary: '现代可编程渲染管线、光栅化与深度缓冲、Compute Shader 通用计算、NeRF 与 3DGS',
     entries: [
       { title: 'OpenGL API 入门', path: '/OpenGL/OpenGL API 入门', note: 'VAO / VBO / IBO / GLSL 着色器抽象' },
       { title: '光栅化', path: '/OpenGL/光栅化', note: '坐标变换 / Z-Buffer / Phong 光照模型' },
-      { title: 'opengl通用计算', path: '/OpenGL/opengl通用计算', note: 'SSBO / Compute Shader 并行派发' }
+      { title: 'opengl通用计算', path: '/OpenGL/opengl通用计算', note: 'SSBO / Compute Shader 并行派发' },
+      { title: 'NeRF与3DGS', path: '/OpenGL/NeRF与3DGS', note: '隐式 MLP 体积渲染 vs 显式三维高斯椭球可微泼溅' }
     ]
   },
   {
@@ -212,12 +206,11 @@ const catalog = [
   {
     id: 'OS & Life',
     group: 'hardware',
-    domain: 'macOS / Windows / life',
-    summary: '桌面系统环境治理、包管理器边界、Web3 基础与日常备忘',
+    domain: 'OS / Web3 / life',
+    summary: 'macOS 与 Windows 系统机制、本地包管理环境治理、Web3 基础与日常备忘',
     entries: [
-      { title: 'macOS入门', path: '/macOS/macOS入门', note: '快捷键体系与系统权限架构' },
-      { title: '部署 (本地环境反思)', path: '/macOS/部署', note: 'fnm / uv / 个人电脑运行 Docker 的边界' },
-      { title: 'Windows技巧', path: '/Windows/技巧', note: '注册表 / 虚拟桌面与电源管理' },
+      { title: 'macOS系统与开发环境', path: '/OS/macOS系统与开发环境', note: '键鼠映射 / Homebrew & Gatekeeper / fnm & uv & 本地 Docker 反思' },
+      { title: 'Windows系统技巧与排障', path: '/OS/Windows系统技巧与排障', note: 'APIPA 双机直连 / 四级权限模型 / PowerShell / 睡眠自动唤醒排障' },
       { title: 'Web3', path: '/Web3/Web3', note: '共识机制 / 智能合约 / 钱包签名' },
       { title: '火车飞机', path: '/life/火车飞机', note: '出行航司与车型备忘' },
       { title: '基本护肤知识', path: '/life/基本护肤知识', note: '屏障清洁与活性成分' },
