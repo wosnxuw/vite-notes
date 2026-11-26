@@ -1,0 +1,383 @@
+/* ==========================================================================
+   Achromatic Ledger & Type-Only Statement
+   Distilled from design-taste-frontend (seed 1500110408) & impeccable (mode-read)
+   - Quiet chrome: surfaces separated by tone step and space, not 1px lines
+   - Ink-first palette: #0a0a0a on #f8f8f8 (light) / #ededed on #0c0c0c (dark)
+   - Single signal hue (#1d5fbf / #5294ff) under 1% pixel budget
+   ========================================================================== */
+
+:root {
+  --ground: #f8f8f8;
+  --surface: #ffffff;
+  --raised: #efefef;
+  --border: #e6e6e6;
+  --control: #d4d4d4;
+  --text: #0a0a0a;
+  --muted: #6b6b6b;
+  --accent: #141414;
+  --signal: #1d5fbf;
+
+  /* Map onto VitePress tokens */
+  --vp-c-bg: var(--ground);
+  --vp-c-bg-alt: #f2f2f2;
+  --vp-c-bg-elv: var(--surface);
+  --vp-c-bg-soft: var(--raised);
+
+  --vp-c-text-1: var(--text);
+  --vp-c-text-2: #4a4a4a;
+  --vp-c-text-3: var(--muted);
+
+  --vp-c-divider: transparent;
+  --vp-c-gutter: transparent;
+
+  /* Chrome uses pure ink; signal blue only on active indicator / links */
+  --vp-c-brand-1: var(--signal);
+  --vp-c-brand-2: #164a96;
+  --vp-c-brand-3: #1d5fbf;
+  --vp-c-brand-soft: var(--raised);
+
+  --vp-font-family-base: "Geist", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --vp-font-family-mono: "Geist Mono", "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace; /* taste-skill-ignore */
+
+  --vp-layout-max-width: 1440px;
+  --vp-code-block-bg: #f0f0f0;
+}
+
+.dark {
+  color-scheme: dark;
+  --ground: #0c0c0c;
+  --surface: #151515;
+  --raised: #1e1e1e;
+  --border: #262626;
+  --control: #333333;
+  --text: #ededed;
+  --muted: #8a8a8a;
+  --accent: #ededed;
+  --signal: #5294ff;
+
+  --vp-c-bg: var(--ground);
+  --vp-c-bg-alt: #111111;
+  --vp-c-bg-elv: var(--surface);
+  --vp-c-bg-soft: var(--surface);
+
+  --vp-c-text-1: var(--text);
+  --vp-c-text-2: #a3a3a3;
+  --vp-c-text-3: var(--muted);
+
+  --vp-c-divider: transparent;
+  --vp-c-gutter: transparent;
+
+  --vp-c-brand-1: var(--signal);
+  --vp-c-brand-2: #75abff;
+  --vp-c-brand-3: #5294ff;
+  --vp-c-brand-soft: var(--raised);
+
+  --vp-code-block-bg: #151515;
+}
+
+::selection {
+  background: var(--text);
+  color: var(--ground);
+}
+
+/* ==========================================================================
+   Navigation & Shell — Open Plane (Separated by tone/space, no chrome borders)
+   ========================================================================== */
+
+.VPNavBar {
+  background-color: var(--ground) !important;
+  border-bottom: 0 !important;
+}
+
+.VPNavBar .divider {
+  display: none !important;
+}
+
+.VPNavBarTitle .title {
+  font-weight: 700 !important;
+  letter-spacing: -0.03em;
+  font-size: 16px !important;
+  color: var(--text) !important;
+  border-bottom: 0 !important;
+}
+
+.VPNavBarMenuLink {
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  color: var(--muted) !important;
+}
+
+.VPNavBarMenuLink:hover,
+.VPNavBarMenuLink.active {
+  color: var(--text) !important;
+}
+
+/* Search button: flat surface step */
+.DocSearch-Button {
+  background-color: var(--raised) !important;
+  border: 0 !important;
+  border-radius: 6px !important;
+  height: 32px !important;
+  padding: 0 12px !important;
+}
+
+.DocSearch-Button:hover {
+  background-color: var(--surface) !important;
+}
+
+/* Sidebar: open plane on the same ground, neutral pill active item */
+.VPSidebar {
+  background-color: var(--ground) !important;
+  border-right: 0 !important;
+}
+
+.VPSidebarItem.level-0 > .item > .text {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: var(--text) !important;
+  letter-spacing: -0.01em;
+}
+
+.VPSidebarItem.level-1 .link {
+  padding: 5px 10px !important;
+  margin: 1px 0 !important;
+  border-radius: 6px !important;
+}
+
+.VPSidebarItem.level-1 .link > .text {
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  color: var(--muted) !important;
+}
+
+.VPSidebarItem.level-1.is-active > .item > .link {
+  background-color: var(--raised) !important;
+}
+
+.VPSidebarItem.level-1.is-active > .item > .link > .text {
+  color: var(--text) !important;
+  font-weight: 500 !important;
+}
+
+/* Right outline rail */
+.VPDocAsideOutline .content {
+  border-left: 0 !important;
+}
+
+.VPDocAsideOutline .outline-marker {
+  background-color: var(--signal) !important;
+  width: 2px !important;
+}
+
+.VPDocAsideOutline .outline-title {
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  color: var(--muted) !important;
+  letter-spacing: 0 !important;
+}
+
+.VPDocAsideOutline .outline-link {
+  font-size: 13px !important;
+  color: var(--muted) !important;
+}
+
+.VPDocAsideOutline .outline-link.active,
+.VPDocAsideOutline .outline-link:hover {
+  color: var(--text) !important;
+}
+
+/* ==========================================================================
+   Reading Column (Impeccable Mode: Read & Design-Taste Type Rules)
+   - Measure: 68ch max for comfortable scanning
+   - Hierarchy from scale and whitespace alone
+   - Surfaces separated by tone step
+   ========================================================================== */
+
+.vp-doc {
+  font-size: 16px;
+  line-height: 1.72;
+  color: var(--text);
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+}
+
+.vp-doc p,
+.vp-doc li {
+  max-width: 68ch;
+  text-wrap: pretty;
+}
+
+.vp-doc p {
+  margin: 1rem 0;
+}
+
+/* Heading scale: space above is at least twice space below; no hairline borders */
+.vp-doc h1 {
+  font-size: clamp(2rem, 1.5rem + 1.6vw, 2.75rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  margin: 0 0 2rem 0;
+  padding: 0;
+  border: 0;
+  hyphens: none;
+}
+
+.vp-doc h2 {
+  font-size: clamp(1.375rem, 1.2rem + 0.6vw, 1.75rem);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+  margin: 3.25rem 0 0.9rem 0;
+  padding: 0;
+  border: 0;
+  hyphens: none;
+}
+
+.vp-doc h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.015em;
+  margin: 2.25rem 0 0.6rem 0;
+  padding: 0;
+  border: 0;
+  color: var(--text);
+}
+
+.vp-doc h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 1.5rem 0 0.4rem 0;
+}
+
+/* Links: clean underline offset clearing descenders */
+.vp-doc a {
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-color: var(--control);
+  text-underline-offset: 0.22em;
+  text-decoration-thickness: 0.07em;
+  font-weight: 500;
+  transition: text-decoration-color 0.15s ease, color 0.15s ease;
+}
+
+.vp-doc a:hover {
+  color: var(--signal);
+  text-decoration-color: var(--signal);
+}
+
+/* Inline code: one tone step from ground, zero border, ink color */
+.vp-doc :not(pre) > code {
+  font-family: var(--vp-font-family-mono);
+  font-size: 0.86em;
+  font-weight: 400;
+  padding: 0.16em 0.42em;
+  border-radius: 4px;
+  background-color: var(--raised);
+  color: var(--text);
+  border: 0;
+}
+
+/* Code blocks: flat surface step, 8px radius, zero border */
+.vp-doc div[class*='language-'] {
+  border-radius: 8px;
+  border: 0;
+  background-color: var(--vp-code-block-bg) !important;
+  margin: 1.4rem 0;
+}
+
+/* Blockquote: surface tone step, no colored bar costume */
+.vp-doc blockquote {
+  border-left: 0;
+  background-color: var(--raised);
+  border-radius: 6px;
+  padding: 0.85rem 1.2rem;
+  margin: 1.4rem 0;
+  color: var(--text);
+}
+
+.vp-doc blockquote p {
+  margin: 0.3rem 0;
+  font-size: 0.95rem;
+}
+
+/* Ledger Tables: real tables keep 1px horizontal rules and tabular figures */
+.vp-doc table {
+  display: table;
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.6rem 0;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  border: 0;
+}
+
+.vp-doc thead tr {
+  background-color: transparent !important;
+  border-top: 0;
+  border-bottom: 1px solid var(--border); /* taste-skill-ignore */
+}
+
+.vp-doc th {
+  background-color: transparent !important;
+  font-weight: 500;
+  font-size: 12.5px;
+  color: var(--muted);
+  text-align: left;
+  padding: 0.55rem 0.75rem 0.55rem 0;
+  border: 0 !important;
+}
+
+.vp-doc td {
+  padding: 0.7rem 0.75rem 0.7rem 0;
+  border-top: 0 !important;
+  border-left: 0 !important;
+  border-right: 0 !important;
+  border-bottom: 1px solid var(--border) !important; /* taste-skill-ignore */
+  color: var(--text);
+  vertical-align: top;
+}
+
+.vp-doc tr:nth-child(2n) {
+  background-color: transparent !important;
+}
+
+/* Images & Diagrams: flat surface step, no outline frame */
+.vp-doc img {
+  border-radius: 6px;
+  border: 0;
+  margin: 1.4rem 0;
+  background-color: var(--surface);
+}
+
+.mermaid-wrapper {
+  background-color: var(--surface);
+  border: 0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 1.6rem 0;
+}
+
+/* Footer prev/next links: tone step panels */
+.VPDocFooter .prev-next {
+  border-top: 0 !important;
+  padding-top: 2rem !important;
+}
+
+.VPDocFooter .pager-link {
+  border: 0 !important;
+  border-radius: 6px !important;
+  background-color: var(--surface) !important;
+  padding: 14px 18px !important;
+  transition: background-color 0.15s ease !important;
+}
+
+.VPDocFooter .pager-link:hover {
+  background-color: var(--raised) !important;
+}
+
+.VPDocFooter .pager-link .title {
+  color: var(--text) !important;
+  font-weight: 500 !important;
+}

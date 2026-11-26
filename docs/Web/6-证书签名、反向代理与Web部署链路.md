@@ -16,11 +16,10 @@
 
 无论上面哪一种拓扑，对外提供 HTTPS 服务默认都走 **443 端口**，而后端业务进程（如 FastAPI、Node、Go）通常只监听在**本机高位端口**（如 `127.0.0.1:8000`）：
 
-```mermaid
-flowchart LR
-    Client["浏览器 / curl"] -->|"1. DNS解析 -> HTTPS :443"| Proxy["入口层: Nginx / Caddy (:443)<br/>处理 HTTPS 证书与路由分发"]
-    Proxy -->|"2a. /index.html 等静态资源"| Static["服务器磁盘文件<br/>(/var/www/app/dist)"]
-    Proxy -->|"2b. /api/... 明文 HTTP 转发"| Backend["本机后端进程<br/>FastAPI / Node (127.0.0.1:8000)"]
+```text
+浏览器 / curl --(1. HTTPS :443)--> Nginx / Caddy (卸载 TLS 与路由分发)
+  --> 命中静态路径 /     --> 直接读取本地静态产物 (/var/www/app/dist)
+  --> 命中接口路径 /api/ --> 明文 HTTP 转发给本机后端进程 (127.0.0.1:8000)
 ```
 
 把用户在页面点击“发送消息”的完整过程拆开看：
@@ -100,14 +99,12 @@ HTTPS = HTTP + TLS（历史旧称 SSL，现代实际都用 TLS 1.2 / 1.3）。�
 
 答案是**操作系统和浏览器出厂时，已经在本地预装了约 100 多家顶级根证书机构（Root CA）的公钥**，这就是整个互联网的信任起点。为了避免顶级根私钥频繁上线暴露，中间通常会多设一级“中间 CA”，形成三级信任链：
 
-```mermaid
-flowchart TB
-    Leaf["1. 网站叶子证书 (cert.pem)<br/>含网站域名与网站公钥，由中间 CA 私钥签名"]
-    Inter["2. 中间 CA 证书 (chain.pem)<br/>含中间 CA 公钥，由根 CA 私钥签名"]
-    Root["3. 根 CA 证书 (Root CA)<br/>出厂预装在 macOS / Linux / Windows / 浏览器内（信任终点）"]
-
-    Leaf -->|"用中间 CA 公钥验签"| Inter
-    Inter -->|"用根 CA 公钥验签"| Root
+```text
+[1. 网站叶子证书 cert.pem] 含网站域名与网站公钥（由中间 CA 私钥签名）
+  --> 用中间 CA 公钥验签
+[2. 中间 CA 证书 chain.pem] 含中间 CA 公钥（由根 CA 私钥签名）
+  --> 用根 CA 公钥验签
+[3. 根 CA 证书 Root CA] 出厂预装在操作系统与浏览器内（信任锚点）
 ```
 
 TLS 握手时的核心校验只有三步：
@@ -187,13 +184,10 @@ Nginx 配置文件用大括号 `{ ... }` 分块，每条指令以分号 `;` 结�
 
 整个请求进来后，Nginx 的决策逻辑就这么一条线：
 
-```mermaid
-flowchart LR
-    Req["收到 HTTP/HTTPS 请求<br/>例如 https://app.example.com/api/chat"] --> Port["1. 看端口<br/>listen 443"]
-    Port --> Domain["2. 看域名<br/>server_name app.example.com"]
-    Domain --> Path["3. 看路径<br/>匹配哪个 location"]
-    Path -->|"命中 / (静态)"| Root["root: 读硬盘文件返回"]
-    Path -->|"命中 /api/ (动态)"| Proxy["proxy_pass: 转给 127.0.0.1:8000"]
+```text
+收到 HTTPS 请求 --> 1. listen 443 (看端口) --> 2. server_name (看域名) --> 3. location (看路径前缀)
+  --> 命中 / (静态)     --> root 直接读磁盘文件返回
+  --> 命中 /api/ (动态) --> proxy_pass 转发给 127.0.0.1:8000
 ```
 
 ### 3. 三步拼出一个真实线上配置（从小到大）

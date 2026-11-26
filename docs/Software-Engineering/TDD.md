@@ -60,14 +60,9 @@
 
 即实现：
 
-```
- REST ───────┐
- CLI ────────┼──> 输入 Port ──> 应用核心
- Test ───────┘
-
- 应用核心 ──> 输出 Port ──┬──> MySQL
-                        ├──> In-memory Fake
-                        └──> PostgreSQL
+```text
+驱动端： REST / CLI / Test --> 输入 Port --> 应用核心
+被驱动： 应用核心 --> 输出 Port --> MySQL / In-memory Fake / PostgreSQL
 ```
 
 London TDD 写测试时会自然产生 Port（需要的角色）
