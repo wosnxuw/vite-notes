@@ -75,7 +75,7 @@ export default defineConfig({
       { text: 'Web', link: '/Web/1-HTTP协议与Web通信基础' },
       { text: 'C & C++', link: '/C&C++/C&C++工程' },
       { text: 'Rust', link: '/Rust/Rust基本' },
-      { text: 'Linux', link: '/Linux/概念' }
+      { text: 'Linux', link: '/Linux/1-Unix演进、发行版生态与系统基础' }
     ],
     search: {
       provider: 'local',

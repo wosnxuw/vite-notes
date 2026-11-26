@@ -111,20 +111,14 @@ const catalog = [
     id: 'Linux',
     group: 'sys',
     domain: 'Linux',
-    summary: '内核启动流程、虚拟内存页表、ELF 动态链接、SSH 与现代命令行工具栈',
+    summary: 'Unix 演进与发行版、启动与页表、动态链接、TTY 终端、SSH、Wayland 桌面与 Git 原理',
     entries: [
-      { title: '概念', path: '/Linux/概念', note: '发行版谱系 / 文件系统层级标准' },
-      { title: '启动', path: '/Linux/启动', note: 'BIOS-UEFI / GRUB / initramfs / systemd' },
-      { title: '页表', path: '/Linux/页表', note: '多级页表 / TLB / 虚拟地址转换' },
-      { title: '动态链接', path: '/Linux/动态链接', note: 'GOT & PLT / ld.so / RPATH' },
-      { title: '命令与终端', path: '/Linux/命令与终端', note: 'TTY / Shell 会话 / 信号控制' },
-      { title: '基本命令', path: '/Linux/基本命令', note: '文件权限 / 文本流处理 / 进程诊断' },
-      { title: '现代工具', path: '/Linux/现代工具', note: 'ripgrep / fd / bat / zoxide / tmux' },
-      { title: 'SSH', path: '/Linux/SSH', note: '密钥认证 / Config 管理 / Agent 转发' },
-      { title: 'Git', path: '/Linux/Git', note: '对象模型 / Rebase / 分支工作流' },
-      { title: 'NeoVim', path: '/Linux/NeoVim', note: 'LSP 配置与快捷键映射' },
-      { title: '桌面', path: '/Linux/桌面', note: 'X11 vs Wayland / 字体渲染' },
-      { title: '国产', path: '/Linux/国产', note: '信创环境适配记录' }
+      { title: '1-Unix演进、发行版生态与系统基础', path: '/Linux/1-Unix演进、发行版生态与系统基础', note: 'Unix & BSD & POSIX / 信创生态 / systemd / Shell 与 PATH' },
+      { title: '2-系统启动、虚拟内存页表与动态链接', path: '/Linux/2-系统启动、虚拟内存页表与动态链接', note: 'UEFI & initramfs / 多级页表 & TLB / .so 搜索与 SONAME' },
+      { title: '3-命令传参哲学、文件描述符与TTY终端', path: '/Linux/3-命令传参哲学、文件描述符与TTY终端', note: 'POSIX-GNU-BSD 参数 / argv vs stdin / 重定向管道 / PTY 主从架构' },
+      { title: '4-运维排障命令、SSH体系与现代终端工具', path: '/Linux/4-运维排障命令、SSH体系与现代终端工具', note: 'SSH 密钥与 Win sshd / iproute2 & ss / rg & zoxide & yazi / Neovim' },
+      { title: '5-Linux图形桌面架构：从X11、Wayland到音频输入法', path: '/Linux/5-Linux图形桌面架构：从X11、Wayland到音频输入法', note: 'GTK & Qt / 浮动与平铺 WM / X11 vs Wayland / PipeWire & Fcitx5' },
+      { title: '6-Git底层原理、分支模型与高级工作流', path: '/Linux/6-Git底层原理、分支模型与高级工作流', note: 'DAG 提交图 / Branch & HEAD / origin/main / rebase & worktree' }
     ]
   },
   {
