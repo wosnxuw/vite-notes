@@ -10,7 +10,19 @@ export default defineConfig({
   title: "Notes",
   description: "笔记",
   markdown: {
-    math: true
+    math: true,
+    config: (md) => {
+      const defaultFence = md.renderer.rules.fence
+      md.renderer.rules.fence = (tokens, idx, options, env, self) => {
+        const token = tokens[idx]
+        if (token.info.trim() === 'mermaid') {
+          return `<Mermaid code="${encodeURIComponent(token.content)}" />`
+        }
+        return defaultFence
+          ? defaultFence(tokens, idx, options, env, self)
+          : self.renderToken(tokens, idx, options)
+      }
+    }
   },
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config

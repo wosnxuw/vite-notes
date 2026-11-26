@@ -76,3 +76,19 @@ JSON 的根，必须是**一个**对象或者数组
 只有一个根
 
 并且根不能是单独的数字或者字符串
+
+---
+
+## 常见变体格式
+
+### jsonl / ndjson
+
+换行分隔 JSON（JSON Lines / Newline Delimited JSON）：每一行是一个完整的 JSON 对象，行内不允许有换行符，适合大数据集与日志流式读写。
+
+### jsonc
+
+JSON with Comments：允许携带 `//` 或 `/* */` 注释（实际工程中部分工具配置文件如 VS Code 的 `settings.json` / `tsconfig.json` 后缀仍叫 `.json`，但按 JSONC 规则解析）。
+
+### bson
+
+Binary JSON：MongoDB 使用的二进制存储和传输格式。
